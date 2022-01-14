@@ -1,1 +1,95 @@
 // TODO
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.posts {
+  max-width: 720px;
+  margin: 5rem auto 0;
+
+  a {
+    display: block;
+
+    & + a {
+      margin-top: 1.2rem;
+      padding-top: 1.2rem;
+      // border-top: 1px solid var(--gray-700);
+    }
+
+    // time {
+    //   font-size: 0.7rem;
+    //   display: flex;
+    //   align-items: center;
+    //   color: var(--gray-300);
+    //   margin-top: 1rem;
+    //   div {
+    //     margin-left: 0.5rem;
+    //   }
+    // }
+
+    // span {
+    //   font-size: 0.7rem;
+    //   display: flex;
+    //   align-items: center;
+    //   color: var(--gray-300);
+    //   margin-top: 1rem;
+    // }
+
+    div {
+      font-size: 0.7rem;
+      gap: 1rem;
+      display: flex;
+      align-items: center;
+      color: var(--gray-300);
+      margin-top: 0.8rem;
+    }
+
+    strong {
+      display: block;
+      font-size: 1.5rem;
+      margin-top: 0.8rem;
+      line-height: 2rem;
+      transition: color 0.2s;
+    }
+
+    p {
+      font-size: 1rem;
+      color: var(--gray-300);
+      margin-top: 0.5rem;
+      line-height: 1.625rem;
+    }
+
+    &:hover strong {
+      color: var(--yellow-500);
+    }
+  }
+}
+
+.button {
+
+  margin: 5rem auto 0;
+
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 22px;
+  background-color: transparent;
+  border: 0;
+
+  /* identical to box height */
+  text-align: justify;
+
+  /* Highlight */
+  color: #FF57B2;
+
+  transition: color 0.2s;
+
+  &:hover{
+    &:hover {
+      color: var(--yellow-500);
+    }
+  }
+}
