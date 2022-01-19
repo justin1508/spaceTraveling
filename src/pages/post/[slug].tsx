@@ -1,5 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import Prismic from '@prismicio/client';
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import { format } from 'date-fns';
@@ -9,8 +10,11 @@ import { getPrismicClient } from '../../services/prismic';
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 
+import Comments from '../../components/Comments';
+
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -28,9 +32,23 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  sugestions: {
+    prevPost?: {
+      uid: string;
+      data: {
+        title: string;
+      };
+    }[];
+    nextPost?: {
+      uid: string;
+      data: {
+        title: string;
+      };
+    }[];
+  };
 }
 
-export default function Post({ post }: PostProps) {
+export default function Post({ post, sugestions }: PostProps) {
   // TODO
   const router = useRouter();
   // if (router.isFallback) <p> Carregando... </p>;
@@ -52,6 +70,14 @@ export default function Post({ post }: PostProps) {
   const readTime = Math.ceil(totalWords / 200);
   const firstPublicationDate = format(
     new Date(post.first_publication_date),
+    "'*editado em' dd MMM yyyy, 'às' H':'m",
+    {
+      locale: ptBR,
+    }
+  );
+
+  const lastPublicationDate = format(
+    new Date(post.last_publication_date),
     'dd MMM yyyy',
     {
       locale: ptBR,
@@ -81,6 +107,7 @@ export default function Post({ post }: PostProps) {
             <FiClock />
             <span>{`${readTime} min`}</span>
           </section>
+          {lastPublicationDate ? <span>{lastPublicationDate}</span> : null}
           {post.data.content.map(p => (
             <div className={styles.postContent} key={p.heading}>
               <h2>{p.heading}</h2>
@@ -90,8 +117,28 @@ export default function Post({ post }: PostProps) {
             </div>
           ))}
         </article>
+
+        <section className={styles.sugestions}>
+          {sugestions.prevPost[0] ? (
+            <div>
+              <p>{sugestions.prevPost[0].data.title}</p>
+              <Link href={`/post/${sugestions.prevPost[0].uid}`}>
+                <a>Post anterior</a>
+              </Link>
+            </div>
+          ) : null}
+          {sugestions.nextPost[0] ? (
+            <div>
+              <p>{sugestions.nextPost[0].data.title}</p>
+              <Link href={`/post/${sugestions.nextPost[0].uid}`}>
+                <a>Próximo post</a>
+              </Link>
+            </div>
+          ) : null}
+        </section>
         {router.isFallback && <span>Carregando...</span>}
       </main>
+      <Comments sugestions={sugestions} />
     </>
   );
 }
@@ -127,11 +174,30 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const prismic = getPrismicClient();
   const response = await prismic.getByUID('post', String(slug), {});
 
+  const prevPost = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'post')],
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date]',
+    }
+  );
+
+  const nextPost = await prismic.query(
+    [Prismic.Predicates.at('document.type', 'post')],
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date desc]',
+    }
+  );
+
   // console.log(JSON.stringify(response, null, 2));
 
   // TODO;
   const post = {
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     // first_publication_date: format(
     //   new Date(response.first_publication_date),
     //   'dd MMM yyyy',
@@ -153,9 +219,15 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   };
   // console.log(JSON.stringify(post, null, 2));
 
+  const sugestions = {
+    prevPost: prevPost?.results,
+    nextPost: nextPost?.results,
+  };
+
   return {
     props: {
       post,
+      sugestions,
     },
     redirect: 60 * 30, // 30 minutes
   };

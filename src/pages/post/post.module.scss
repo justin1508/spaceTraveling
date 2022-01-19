@@ -48,3 +48,27 @@
   }
 }
 
+
+.sugestions {
+  margin: 5rem auto;
+  max-width: 720px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--Border);
+  padding-top: 2rem;
+
+  p {
+    font-size: 1.1rem;
+  }
+
+  a {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--Highlight);
+  }
+
+  div + div {
+    text-align: right;
+  }
+}
